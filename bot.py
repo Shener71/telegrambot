@@ -33,7 +33,7 @@ def main():
     """Botu çalıştıran ana fonksiyon."""
     app = Application.builder().token(TOKEN).build()
 
-    # Komutları ekleyelim
+    # Komutları ekleyelim deneme yorumu
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
