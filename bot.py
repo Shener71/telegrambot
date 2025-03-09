@@ -1,13 +1,28 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.error import TelegramError
 from apscheduler.schedulers.background import BackgroundScheduler
 import asyncio
+import logging
 
-# Bot tokenını buraya yapıştır
+# Bot token
 TOKEN = "7929440474:AAEPEIl6MZNpX5J0qhQ86-Pjberu-ZuXfxA"
 
-# Kullanıcının Telegram ID'si (Bunu bulmak için @userinfobot kullan)
-USER_ID = 6131621482  # Buraya kendi Telegram ID'ni koy
+# Telegram ID
+USER_ID = 6131621482 
+
+def check_bot_status():
+    try:
+        # Botun çalıştığını bildiren basit bir mesaj gönder
+        bot.send_message(chat_id=CHAT_ID, text="✅ Bot çalışıyor! (Saatlik kontrol)")
+        logging.info("Kontrol mesajı başarıyla gönderildi.")
+    except TelegramError as e:
+        logging.error(f"Kontrol mesajı gönderilemedi: {e}")
+
+# Arka plan zamanlayıcısını oluştur ve kontrol işini ekle
+scheduler = BackgroundScheduler()
+scheduler.add_job(check_bot_status, 'interval', hours=1)  # SAATTE 1 KEZ çalışır
+scheduler.start()
 
 async def start(update: Update, context: CallbackContext) -> None:
     """Kullanıcı /start komutunu gönderdiğinde çalışacak."""
@@ -45,4 +60,8 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, SystemExit):
+        scheduler.shutdown()
+        print("Bot kapatıldı.")
